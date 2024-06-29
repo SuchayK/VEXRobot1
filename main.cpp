@@ -33,20 +33,46 @@ void moveForward(double x){
   right_drive.spinFor(fwd, x,turns,false);
   left_drive.spinFor(fwd, x,turns);
 }
-
+void moveForward(double x, bool z){
+  right_drive.spinFor(fwd, x,turns,false);
+  left_drive.spinFor(fwd, x,turns, z);
+}
 void moveBack(double x){
   right_drive.spinFor(reverse, x,turns,false);
   left_drive.spinFor(reverse, x,turns);
 }
-
+void moveBack(double x, bool z){
+  right_drive.spinFor(reverse, x,turns,false);
+  left_drive.spinFor(reverse, x,turns, z );
+}
 void turnLeft(double x){
   left_drive.spinFor(reverse,x,turns,false);
   right_drive.spinFor(fwd,x,turns);
 
 }
-
+void turnLeft(double x, bool z){
+  left_drive.spinFor(reverse,x,turns,false);
+  right_drive.spinFor(fwd,x,turns, z);
+}
 void turnRight(double x){
   left_drive.spinFor(fwd,x,turns,false);
   right_drive.spinFor(reverse,x, turns);
 } 
+void turnRight(double x, bool z){
+  left_drive.spinFor(fwd,x,turns,false);
+  right_drive.spinFor(reverse,x, turns, z);
+}
 
+void pre_auton(void) {
+  // Initializing Robot Configuration. DO NOT REMOVE!
+  vexcodeInit();
+
+  // All activities that occur before the competition starts
+  // Example: clearing encoders, setting servo positions, ...
+
+  right_drive.setStopping(brake);
+  left_drive.setStopping(brake);
+  right_drive.setVelocity(40, pct);
+  left_drive.setVelocity(40, pct);  
+
+}
