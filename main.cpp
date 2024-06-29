@@ -58,6 +58,12 @@ void turnRight(double x){
   left_drive.spinFor(fwd,x,turns,false);
   right_drive.spinFor(reverse,x, turns);
 } 
+
+void rightDegrees(double x){
+  left_drive.spinFor(fwd,x,degrees,false);
+  right_drive.spinFor(reverse,x, degrees);
+} 
+
 void turnRight(double x, bool z){
   left_drive.spinFor(fwd,x,turns,false);
   right_drive.spinFor(reverse,x, turns, z);
@@ -85,12 +91,14 @@ void autonomous(void) {
   
   //offside
   
-  moveForward(5.9, false);
+  moveForward(4.376, false);
   wait(2, sec);
-  moveBack(5.9,false);
+  moveBack(3.891,false);
   wait(2, sec);
-  turnRight(1.75);
+  turnRight(3.42);
   wait(2, sec);
-  turnLeft(1.75);
+  turnLeft(3.42);
+
+  rightDegrees(85.1);
 
 }
