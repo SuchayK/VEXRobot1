@@ -76,3 +76,21 @@ void pre_auton(void) {
   left_drive.setVelocity(40, pct);  
 
 }
+
+void autonomous(void) {
+  
+  // ..........................................................................
+  // Insert autonomous user code here.
+  // ..........................................................................
+  
+  //offside
+  
+  moveForward(5.9, false);
+  wait(2, sec);
+  moveBack(5.9,false);
+  wait(2, sec);
+  turnRight(1.75);
+  wait(2, sec);
+  turnLeft(1.75);
+
+}
