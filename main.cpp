@@ -93,12 +93,35 @@ void pre_auton(void) {
 }
 
 void autonomous(void) {
-  for (int i = 0; i < 4; ++i) {
-    moveForward(2.0, false);
-    wait(1, sec);
-    rightDegrees(90);
-    wait(1, sec);
-  }
+  leftDegrees(45);  // Turn left 45 degrees
+  wait(1, sec);
+  
+  moveForward(1.0);  // Move forward 1 tile
+  wait(1, sec);
+  
+  moveBack(1.0);  // Move backward 1 tile
+  wait(1, sec);
+  
+  rightDegrees(45);  // Turn right 45 degrees
+  wait(1, sec);
+  
+  moveForward(2.0);  // Move forward 2 tiles
+  wait(1, sec);
+  
+  leftDegrees(90);  // Turn left 90 degrees
+  wait(1, sec);
+  
+  moveForward(0.5);  // Move forward 1/2 tile
+  wait(1, sec);
+  
+  moveBack(1.5);  // Move backward 1 1/2 tiles
+  wait(1, sec);
+  
+  leftDegrees(90);  // Turn left 90 degrees
+  wait(1, sec);
+  
+  moveForward(2.0);  // Move forward 2 tiles
+  wait(1, sec);
 }
 
 void usercontrol(void) {
