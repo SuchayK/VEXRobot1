@@ -112,6 +112,34 @@ void turnPID(double targetDegrees) {
   right_drive.stop();
 }
 
+void liftToHeight(double targetHeight) {
+  double kP = 0.24;
+  double kI = 0.01;
+  double kD = 0.005;
+  double error = targetHeight;
+  double previousError = 0;
+  double integral = 0;
+  double derivative;
+  double motorPower;
+
+  lift.resetPosition();
+
+  while (fabs(error) > 0.1) {
+    error = targetHeight - lift.position(turns);
+    integral += error;
+    derivative = error - previousError;
+    motorPower = (kP * error) + (kI * integral) + (kD * derivative);
+
+    lift.spin(fwd, motorPower, pct);
+
+    previousError = error;
+    wait(20, msec);
+  }
+
+  lift.stop();
+}
+
+
 void pre_auton(void) {
   vexcodeInit();
 
@@ -137,11 +165,8 @@ void autonomous(void) {
   moveForward(2.0);  // Move forward 2 tiles
   wait(1, sec);
 
-  lift.spin(fwd);  // Activate lift
-  wait(2.5, sec);
-  
-  lift.stop();  // Stop lift from raising
-  wait (1, sec)
+  liftToHeight(5.0);  // Activate lift
+  wait(1, sec);
   
   moveBack(2.0);  // Move backward 2 tiles
   wait(1, sec);
