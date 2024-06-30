@@ -13,6 +13,7 @@ motor leftMotor3 = motor(PORT3, ratio6_1, true);
 motor rightMotor1 = motor(PORT11, ratio6_1, false);
 motor rightMotor2 = motor(PORT12, ratio6_1, false);
 motor rightMotor3 = motor(PORT13, ratio6_1, false);
+motor lift = motor(PORT7, ratio6_1, false);
 controller Controller1 = controller(primary);
 // VEXcode generated functions
 motor_group left_drive= motor_group(leftMotor1, leftMotor2,leftMotor3);

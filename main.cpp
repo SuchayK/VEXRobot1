@@ -136,6 +136,12 @@ void autonomous(void) {
   
   moveForward(2.0);  // Move forward 2 tiles
   wait(1, sec);
+
+  lift.spin(fwd);  // Activate lift
+  wait(2.5, sec);
+  
+  lift.stop();  // Stop lift from raising
+  wait (1, sec)
   
   moveBack(2.0);  // Move backward 2 tiles
   wait(1, sec);
@@ -179,9 +185,17 @@ void autonomous(void) {
 
 void usercontrol(void) {
   while (true) {
-    left_drive.spin(fwd, Controller1.Axis3.position(pct), pct);
-    right_drive.spin(fwd, Controller1.Axis2.position(pct), pct);
-    wait(20, msec);
+    left_drive.spin(fwd,Controller1.Axis3.value()+Controller1.Axis1.value()*0.45,percent);
+    right_drive.spin(fwd,Controller1.Axis3.value()-Controller1.Axis1.value()*0.45,percent);
+    
+    if (Controller1.ButtonL1.pressing() || Controller1.ButtonL2.pressing()){
+      lift.spin(fwd);
+    } else if (Controller1.ButtonB.pressing()){
+      lift.spin(reverse);
+    }
+    else{
+      lift.stop();
+    }
   }
 }
 
