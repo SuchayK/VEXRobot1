@@ -18,6 +18,7 @@ controller Controller1 = controller(primary);
 // VEXcode generated functions
 motor_group left_drive= motor_group(leftMotor1, leftMotor2,leftMotor3);
 motor_group  right_drive= motor_group(rightMotor1, rightMotor2,rightMotor3);
+digital_out wings = digital_out(Brain.ThreeWirePort.H);
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

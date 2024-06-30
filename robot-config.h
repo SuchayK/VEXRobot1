@@ -11,7 +11,7 @@ extern motor lift;
 extern controller Controller1;
 extern motor_group left_drive;
 extern motor_group right_drive;
-
+extern digital_out wings;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

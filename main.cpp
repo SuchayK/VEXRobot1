@@ -150,11 +150,16 @@ void pre_auton(void) {
 }
 
 void autonomous(void) {
+
+  wings.set(false);
+
   leftDegrees(45);  // Turn left 45 degrees
   wait(1, sec);
   
   moveForward(1.0);  // Move forward 1 tile
   wait(1, sec);
+
+  wings.set(true);
   
   moveBack(1.0);  // Move backward 1 tile
   wait(1, sec);
@@ -165,17 +170,23 @@ void autonomous(void) {
   moveForward(2.0);  // Move forward 2 tiles
   wait(1, sec);
 
+  wings.set(false);
+
   liftToHeight(5.0);  // Activate lift
   wait(1, sec);
   
   moveBack(2.0);  // Move backward 2 tiles
   wait(1, sec);
+
+  wings.set(true);
   
   leftDegrees(90);  // Turn left 90 degrees
   wait(1, sec);
   
   moveForward(2.0);  // Move forward 2 tiles
   wait(1, sec);
+
+  wings.set(false);
   
   leftDegrees(90);  // Turn left 90 degrees
   wait(1, sec);
@@ -191,6 +202,8 @@ void autonomous(void) {
   
   moveForward(2.0);  // Move forward 2 tiles
   wait(1, sec);
+
+  wings.set(true);
   
   moveBack(4.0);  // Move backward 4 tiles
   wait(1, sec);
@@ -201,18 +214,27 @@ void autonomous(void) {
   moveForward(1.25);  // Move forward 1.25 tiles
   wait(1, sec);
   
+  wings.set(false);
+
+  wings.set(true);
+
   rightDegrees(60);  // Turn right 60 degrees
   wait(1, sec);
   
   moveForward(2.75);  // Move forward 2.75 tiles
   wait(1, sec);
+
+  wings.set(false);
 }
 
 void usercontrol(void) {
   while (true) {
+
+    // drive
     left_drive.spin(fwd,Controller1.Axis3.value()+Controller1.Axis1.value()*0.45,percent);
     right_drive.spin(fwd,Controller1.Axis3.value()-Controller1.Axis1.value()*0.45,percent);
     
+    // lift
     if (Controller1.ButtonL1.pressing() || Controller1.ButtonL2.pressing()){
       lift.spin(fwd);
     } else if (Controller1.ButtonB.pressing()){
@@ -221,6 +243,15 @@ void usercontrol(void) {
     else{
       lift.stop();
     }
+
+    // wings
+    if (Controller1.ButtonR2.pressing()){
+      wings.set(true);
+    } 
+    if (Controller1.ButtonR1.pressing()){
+      wings.set(false);
+    }
+
   }
 }
 
