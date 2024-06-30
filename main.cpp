@@ -83,6 +83,35 @@ void moveForwardPID(double targetDistance) {
   right_drive.stop();
 }
 
+void turnPID(double targetDegrees) {
+  double kP = 0.3;
+  double kI = 0.01;
+  double kD = 0;
+  double error = targetDegrees;
+  double previousError = 0;
+  double integral = 0;
+  double derivative;
+  double motorPower;
+
+  inertial.resetRotation();
+
+  while (fabs(error) > 1) {
+    error = targetDegrees - inertial.rotation(degrees);
+    integral += error;
+    derivative = error - previousError;
+    motorPower = (kP * error) + (kI * integral) + (kD * derivative);
+
+    left_drive.spin(fwd, motorPower, pct);
+    right_drive.spin(reverse, motorPower, pct);
+
+    previousError = error;
+    wait(20, msec);
+  }
+
+  left_drive.stop();
+  right_drive.stop();
+}
+
 void pre_auton(void) {
   vexcodeInit();
 
@@ -102,7 +131,16 @@ void autonomous(void) {
   moveBack(1.0);  // Move backward 1 tile
   wait(1, sec);
   
-  rightDegrees(45);  // Turn right 45 degrees
+  rightDegrees(135);  // Turn right 135 degrees
+  wait(1, sec);
+  
+  moveForward(2.0);  // Move forward 2 tiles
+  wait(1, sec);
+  
+  moveBack(2.0);  // Move backward 2 tiles
+  wait(1, sec);
+  
+  leftDegrees(90);  // Turn left 90 degrees
   wait(1, sec);
   
   moveForward(2.0);  // Move forward 2 tiles
@@ -121,6 +159,21 @@ void autonomous(void) {
   wait(1, sec);
   
   moveForward(2.0);  // Move forward 2 tiles
+  wait(1, sec);
+  
+  moveBack(4.0);  // Move backward 4 tiles
+  wait(1, sec);
+  
+  leftDegrees(90);  // Turn left 90 degrees
+  wait(1, sec);
+  
+  moveForward(1.25);  // Move forward 1.25 tiles
+  wait(1, sec);
+  
+  rightDegrees(60);  // Turn right 60 degrees
+  wait(1, sec);
+  
+  moveForward(2.75);  // Move forward 2.75 tiles
   wait(1, sec);
 }
 
