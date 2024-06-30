@@ -3,6 +3,9 @@ using namespace vex;
 
 competition Competition;
 
+motor lift(PORT1, gearSetting::ratio18_1, false);
+digital_out wings(Brain.ThreeWirePort.A);
+
 void moveForward(double x) {
   right_drive.spinFor(fwd, x, turns, false);
   left_drive.spinFor(fwd, x, turns);
@@ -84,9 +87,9 @@ void moveForwardPID(double targetDistance) {
 }
 
 void turnPID(double targetDegrees) {
-  double kP = 0.3;
-  double kI = 0.01;
-  double kD = 0;
+  double kP = 0.6;
+  double kI = 0.04;
+  double kD = 0.3;
   double error = targetDegrees;
   double previousError = 0;
   double integral = 0;
@@ -113,9 +116,9 @@ void turnPID(double targetDegrees) {
 }
 
 void liftToHeight(double targetHeight) {
-  double kP = 0.24;
-  double kI = 0.01;
-  double kD = 0.005;
+  double kP = 0.6;
+  double kI = 0.04;
+  double kD = 0.3;
   double error = targetHeight;
   double previousError = 0;
   double integral = 0;
@@ -139,7 +142,6 @@ void liftToHeight(double targetHeight) {
   lift.stop();
 }
 
-
 void pre_auton(void) {
   vexcodeInit();
 
@@ -150,108 +152,43 @@ void pre_auton(void) {
 }
 
 void autonomous(void) {
-
-  wings.set(false);
-
-  leftDegrees(45);  // Turn left 45 degrees
+  moveForward(1.0);         // Forward 1
+  wings.set(true);          // Set wings to true
   wait(1, sec);
   
-  moveForward(1.0);  // Move forward 1 tile
+  leftDegrees(30);          // Left 30
   wait(1, sec);
 
-  wings.set(true);
-  
-  moveBack(1.0);  // Move backward 1 tile
-  wait(1, sec);
-  
-  rightDegrees(135);  // Turn right 135 degrees
-  wait(1, sec);
-  
-  moveForward(2.0);  // Move forward 2 tiles
+  moveForward(0.6);         // Forward 0.6
   wait(1, sec);
 
-  wings.set(false);
-
-  liftToHeight(5.0);  // Activate lift
-  wait(1, sec);
-  
-  moveBack(2.0);  // Move backward 2 tiles
+  leftDegrees(60);          // Left 60
   wait(1, sec);
 
-  wings.set(true);
-  
-  leftDegrees(90);  // Turn left 90 degrees
-  wait(1, sec);
-  
-  moveForward(2.0);  // Move forward 2 tiles
+  moveForward(1.3);         // Forward 1.3
   wait(1, sec);
 
-  wings.set(false);
-  
-  leftDegrees(90);  // Turn left 90 degrees
-  wait(1, sec);
-  
-  moveForward(0.5);  // Move forward 1/2 tile
-  wait(1, sec);
-  
-  moveBack(1.5);  // Move backward 1 1/2 tiles
-  wait(1, sec);
-  
-  leftDegrees(90);  // Turn left 90 degrees
-  wait(1, sec);
-  
-  moveForward(2.0);  // Move forward 2 tiles
+  moveBack(1.0);            // Back 1
   wait(1, sec);
 
-  wings.set(true);
-  
-  moveBack(4.0);  // Move backward 4 tiles
-  wait(1, sec);
-  
-  leftDegrees(90);  // Turn left 90 degrees
-  wait(1, sec);
-  
-  moveForward(1.25);  // Move forward 1.25 tiles
-  wait(1, sec);
-  
-  wings.set(false);
-
-  wings.set(true);
-
-  rightDegrees(60);  // Turn right 60 degrees
-  wait(1, sec);
-  
-  moveForward(2.75);  // Move forward 2.75 tiles
+  moveForward(1.0);         // Forward 1
   wait(1, sec);
 
-  wings.set(false);
+  moveBack(1.0);            // Back 1
+  wait(1, sec);
+
+  leftDegrees(45);          // Left 45
+  wait(1, sec);
+
+  moveForward(4.3);         // Forward 4.3
+  wait(1, sec);
 }
 
 void usercontrol(void) {
   while (true) {
-
-    // drive
-    left_drive.spin(fwd,Controller1.Axis3.value()+Controller1.Axis1.value()*0.45,percent);
-    right_drive.spin(fwd,Controller1.Axis3.value()-Controller1.Axis1.value()*0.45,percent);
-    
-    // lift
-    if (Controller1.ButtonL1.pressing() || Controller1.ButtonL2.pressing()){
-      lift.spin(fwd);
-    } else if (Controller1.ButtonB.pressing()){
-      lift.spin(reverse);
-    }
-    else{
-      lift.stop();
-    }
-
-    // wings
-    if (Controller1.ButtonR2.pressing()){
-      wings.set(true);
-    } 
-    if (Controller1.ButtonR1.pressing()){
-      wings.set(false);
-    }
-
+    left_drive.spin(fwd, Controller1.Axis3.position(pct), pct);
+    right_drive.spin(fwd, Controller1.Axis2.position(pct), pct);
+    wait(20, msec);
   }
 }
 
