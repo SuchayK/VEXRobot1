@@ -182,6 +182,36 @@ void autonomous(void) {
 
   moveForward(4.3);         // Forward 4.3
   wait(1, sec);
+
+  wings.set(false);         // Set wings to false
+  wait(1, sec);
+
+  leftDegrees(45);          // Left 45
+  wait(1, sec);
+
+  moveBack(2.0);            // Back 2
+  wait(1, sec);
+
+  rightDegrees(90);         // Right 90
+  wait(1, sec);
+
+  wings.set(true);          // Set wings to true
+  wait(1, sec);
+
+  moveForward(1.4);         // Forward 1.4
+  wait(1, sec);
+
+  wings.set(false);         // Set wings to false
+  wait(1, sec);
+
+  leftDegrees(90);          // Left 90
+  wait(1, sec);
+
+  moveForward(3.0);         // Forward 3
+  wait(1, sec);
+
+  moveBack(1.0);            // Back 1
+  wait(1, sec);
 }
 
 void usercontrol(void) {
