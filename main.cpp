@@ -5,6 +5,8 @@ competition Competition;
 
 motor lift(PORT1, gearSetting::ratio18_1, false);
 digital_out wings(Brain.ThreeWirePort.A);
+digital_out left_wing(Brain.ThreeWirePort.B);
+digital_out right_wing(Brain.ThreeWirePort.C);
 
 void moveForward(double x) {
   right_drive.spinFor(fwd, x, turns, false);
@@ -142,6 +144,14 @@ void liftToHeight(double targetHeight) {
   lift.stop();
 }
 
+void setLeftWing(bool state) {
+  wings.left_wing.set(state);
+}
+
+void setRightWing(bool state) {
+  wings.right_wing.set(state);
+}
+
 void pre_auton(void) {
   vexcodeInit();
 
@@ -211,6 +221,27 @@ void autonomous(void) {
   wait(1, sec);
 
   moveBack(1.0);            // Back 1
+  wait(1, sec);
+
+  leftDegrees(90);          // Left 90
+  wait(1, sec);
+
+  moveForward(3.0);         // Forward 3
+  wait(1, sec);
+
+  rightDegrees(90);         // Right 90
+  wait(1, sec);
+
+  moveBack(2.0);            // Back 2
+  wait(1, sec);
+
+  moveForward(2.0);         // Forward 2
+  wait(1, sec);
+
+  wings.set(true);          // Set wings to true
+  wait(1, sec);
+
+  moveForward(2.0);         // Forward 2 tiles
   wait(1, sec);
 }
 
