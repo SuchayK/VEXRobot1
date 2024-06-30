@@ -101,6 +101,14 @@ void autonomous(void) {
   }
 }
 
+void usercontrol(void) {
+  while (true) {
+    left_drive.spin(fwd, Controller1.Axis3.position(pct), pct);
+    right_drive.spin(fwd, Controller1.Axis2.position(pct), pct);
+    wait(20, msec);
+  }
+}
+
 int main() {
   Competition.autonomous(autonomous);
   Competition.drivercontrol(usercontrol);
