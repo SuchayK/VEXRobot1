@@ -54,17 +54,31 @@ void leftDegrees(double x) {
 }
 
 void moveForwardPID(double targetDistance) {
-  double kP = 0.5;
+  double kP = 0.6;
+  double kI = 0.04;
+  double kD = 0.3;
   double error = targetDistance;
+  double previousError = 0;
+  double integral = 0;
+  double derivative;
   double motorPower;
-  
+
+  left_drive.resetPosition();
+  right_drive.resetPosition();
+
   while (fabs(error) > 0.1) {
     error = targetDistance - left_drive.position(turns);
-    motorPower = error * kP;
+    integral += error;
+    derivative = error - previousError;
+    motorPower = (kP * error) + (kI * integral) + (kD * derivative);
+
     left_drive.spin(fwd, motorPower, pct);
     right_drive.spin(fwd, motorPower, pct);
+
+    previousError = error;
     wait(20, msec);
   }
+
   left_drive.stop();
   right_drive.stop();
 }
@@ -79,14 +93,20 @@ void pre_auton(void) {
 }
 
 void autonomous(void) {
-  moveForward(4.376, false);
-  wait(2, sec);
-  moveBack(3.891, false);
-  wait(2, sec);
-  turnRight(3.42);
-  wait(2, sec);
-  turnLeft(3.42);
-  rightDegrees(85.1);
-  leftDegrees(85.1);
-  moveForwardPID(10.0);
+  for (int i = 0; i < 4; ++i) {
+    moveForward(2.0, false);
+    wait(1, sec);
+    rightDegrees(90);
+    wait(1, sec);
+  }
+}
+
+int main() {
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(usercontrol);
+  pre_auton();
+  
+  while (true) {
+    wait(100, msec);
+  }
 }
