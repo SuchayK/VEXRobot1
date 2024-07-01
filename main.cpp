@@ -267,31 +267,41 @@ float to_deg(float angle_rad){
 }
 
 void purePursuit(std::vector<std::pair<double, double>> path) {
-
   double lookaheadDistance = 5.0;
-  double kP = 0.0;
-  double kI = 0.0;
-  double kD = 0.0;
+  double kP = 0.6;
+  double kI = 0.04;
+  double kD = 0.3;
 
   for (auto& point : path) {
-
     double targetX = point.first;
     double targetY = point.second;
 
     while (sqrt(pow(targetX - robotX, 2) + pow(targetY - robotY, 2)) > lookaheadDistance) {
-
       double angleToTarget = atan2(targetY - robotY, targetX - robotX);
       double distanceToTarget = sqrt(pow(targetX - robotX, 2) + pow(targetY - robotY, 2));
       double headingError = angleToTarget - robotTheta;
+      double error = distanceToTarget;
+      double previousError = 0;
+      double integral = 0;
+      double derivative;
+      double motorPower;
 
-      left_drive.stop();
-      right_drive.stop();
+      while (fabs(error) > 0.1) {
+        error = distanceToTarget - sqrt(pow(targetX - robotX, 2) + pow(targetY - robotY, 2));
+        integral += error;
+        derivative = error - previousError;
+        motorPower = (kP * error) + (kI * integral) + (kD * derivative);
 
-    }
+        left_drive.spin(fwd, motorPower - headingError, pct);
+        right_drive.spin(fwd, motorPower + headingError, pct);
 
+        previousError = error;
+        wait(20, msec);
+        updateOdometry();
+      }
 
-  }
-
+  left_drive.stop();
+  right_drive.stop();
 }
 
 void pre_auton(void) {
