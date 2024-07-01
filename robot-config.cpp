@@ -24,6 +24,8 @@ encoder leftEncoder(Brain.ThreeWirePort.A);
 encoder rightEncoder(Brain.ThreeWirePort.C);
 encoder backEncoder(Brain.ThreeWirePort.E);
 
+IMU inertial = IMU(PORT6);
+
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
  *

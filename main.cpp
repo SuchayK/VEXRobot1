@@ -12,81 +12,99 @@ double robotX = 0.0;
 double robotY = 0.0; 
 double robotTheta = 0.0; 
 
-const double wheelDiameter = 4.0; 
+const double wheelDiameter = 3.0; 
 const double tpr = 360; 
 
 
 void moveForward(double x) {
   right_drive.spinFor(fwd, x, turns, false);
   left_drive.spinFor(fwd, x, turns);
+  updateOdometry();
 }
 
 void moveForward(double x, bool z) {
   right_drive.spinFor(fwd, x, turns, false);
   left_drive.spinFor(fwd, x, turns, z);
+  updateOdometry();
 }
 
 void moveBack(double x) {
   right_drive.spinFor(reverse, x, turns, false);
   left_drive.spinFor(reverse, x, turns);
+  updateOdometry();
 }
 
 void moveBack(double x, bool z) {
   right_drive.spinFor(reverse, x, turns, false);
   left_drive.spinFor(reverse, x, turns, z);
+  updateOdometry();
 }
 
 void turnLeft(double x) {
   left_drive.spinFor(reverse, x, turns, false);
   right_drive.spinFor(fwd, x, turns);
+  updateOdometry();
 }
 
 void turnLeft(double x, bool z) {
   left_drive.spinFor(reverse, x, turns, false);
   right_drive.spinFor(fwd, x, turns, z);
+  updateOdometry();
 }
 
 void turnRight(double x) {
   left_drive.spinFor(fwd, x, turns, false);
   right_drive.spinFor(reverse, x, turns);
+  updateOdometry();
 }
 
 void turnRight(double x, bool z) {
   left_drive.spinFor(fwd, x, turns, false);
   right_drive.spinFor(reverse, x, turns, z);
+  updateOdometry();
 }
 
 void rightDegrees(double x) {
   left_drive.spinFor(fwd, x, degrees, false);
   right_drive.spinFor(reverse, x, degrees);
+  updateOdometry();
 }
 
 void leftDegrees(double x) {
   left_drive.spinFor(reverse, x, degrees, false);
   right_drive.spinFor(fwd, x, degrees);
+  updateOdometry();
 }
 
 void moveForward(double targetDistance) {
   double kP = 0.6;
   double kI = 0.04;
   double kD = 0.3;
+  double Kc = 0.5;
   double error = targetDistance;
   double previousError = 0;
   double integral = 0;
   double derivative;
   double motorPower;
 
+  double initialAngle = inertial.rotation(degrees);
+  double currentAngle;
+  double angleError;
+
   left_drive.resetPosition();
   right_drive.resetPosition();
 
   while (fabs(error) > 0.1) {
+    currentAngle = inertial.rotation(degrees);
+    angleError = initialAngle - currentAngle;
+
     error = targetDistance - left_drive.position(turns);
     integral += error;
     derivative = error - previousError;
     motorPower = (kP * error) + (kI * integral) + (kD * derivative);
 
-    left_drive.spin(fwd, motorPower, pct);
-    right_drive.spin(fwd, motorPower, pct);
+    left_drive.spin(fwd, motorPower + Kc * angleError, pct);
+    right_drive.spin(fwd, motorPower - Kc * angleError, pct);
 
     previousError = error;
     wait(20, msec);
@@ -94,29 +112,39 @@ void moveForward(double targetDistance) {
 
   left_drive.stop();
   right_drive.stop();
+  updateOdometry();
+
 }
 
 void moveBack(double targetDistance) {
   double kP = 0.6;
   double kI = 0.04;
   double kD = 0.3;
+  double Kc = 0.5;
   double error = targetDistance;
   double previousError = 0;
   double integral = 0;
   double derivative;
   double motorPower;
 
+  double initialAngle = inertial.rotation(degrees);
+  double currentAngle;
+  double angleError;
+
   left_drive.resetPosition();
   right_drive.resetPosition();
 
   while (fabs(error) > 0.1) {
+    currentAngle = inertial.rotation(degrees);
+    angleError = initialAngle - currentAngle;
+
     error = targetDistance - left_drive.position(turns);
     integral += error;
     derivative = error - previousError;
     motorPower = (kP * error) + (kI * integral) + (kD * derivative);
 
-    left_drive.spin(reverse, motorPower, pct);
-    right_drive.spin(reverse, motorPower, pct);
+    left_drive.spin(reverse, motorPower + Kc * angleError, pct);
+    right_drive.spin(reverse, motorPower - Kc * angleError, pct);
 
     previousError = error;
     wait(20, msec);
@@ -124,12 +152,14 @@ void moveBack(double targetDistance) {
 
   left_drive.stop();
   right_drive.stop();
+  updateOdometry();
+
 }
 
 void turnPID(double targetDegrees) {
-  double kP = 0.6;
-  double kI = 0.04;
-  double kD = 0.3;
+  double kP = 0.3;
+  double kI = 0.02;
+  double kD = 0.005;
   double error = targetDegrees;
   double previousError = 0;
   double integral = 0;
@@ -153,6 +183,7 @@ void turnPID(double targetDegrees) {
 
   left_drive.stop();
   right_drive.stop();
+  updateOdometry();
 }
 
 void liftToHeight(double targetHeight) {
@@ -216,10 +247,23 @@ void updateOdometry() {
   double deltaX = (deltaLeftInches + deltaRightInches) / 2.0;
   double deltaY = deltaBackInches - (deltaTheta * backWheelOffset);
 
+  if(deltaTheta > 180)
+			deltaTheta = deltaTheta - 360;
+		if(deltaTheta < -180)
+			deltaTheta = 360 + deltaTheta;
+
   robotTheta += deltaTheta;
   robotX += deltaX * cos(robotTheta) - deltaY * sin(robotTheta);
   robotY += deltaX * sin(robotTheta) + deltaY * cos(robotTheta);
 
+}
+
+float to_rad(float angle_deg){
+  return(angle_deg/(180.0/M_PI));
+}
+
+float to_deg(float angle_rad){
+  return(angle_rad*(180.0/M_PI));
 }
 
 
@@ -447,7 +491,7 @@ void usercontrol(void) {
     Brain.Screen.print(robotX);
     Brain.Screen.print(robotY);
     Brain.Screen.print(robotTheta);
-    
+
   }
 }
 
