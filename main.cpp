@@ -8,6 +8,14 @@ digital_out wings(Brain.ThreeWirePort.A);
 digital_out left_wing(Brain.ThreeWirePort.B);
 digital_out right_wing(Brain.ThreeWirePort.C);
 
+double robotX = 0.0; 
+double robotY = 0.0; 
+double robotTheta = 0.0; 
+
+const double wheelDiameter = 4.0; 
+const double tpr = 360; 
+
+
 void moveForward(double x) {
   right_drive.spinFor(fwd, x, turns, false);
   left_drive.spinFor(fwd, x, turns);
@@ -151,6 +159,22 @@ void setLeftWing(bool state) {
 void setRightWing(bool state) {
   wings.right_wing.set(state);
 }
+
+void updateOdometry() {
+  static double lastLeftEncoder = 0.0;
+  static double lastRightEncoder = 0.0;
+  static double lastBackEncoder = 0.0;
+
+  double currentLeftEncoder = leftEncoder.position(degrees);
+  double currentRightEncoder = rightEncoder.position(degrees);
+  double currentBackEncoder = backEncoder.position(degrees);
+
+  double deltaLeft = currentLeftEncoder - lastLeftEncoder;
+  double deltaRight = currentRightEncoder - lastRightEncoder;
+  double deltaBack = currentBackEncoder - lastBackEncoder;
+
+}
+
 
 void pre_auton(void) {
   vexcodeInit();

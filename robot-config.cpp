@@ -20,6 +20,10 @@ motor_group left_drive= motor_group(leftMotor1, leftMotor2,leftMotor3);
 motor_group  right_drive= motor_group(rightMotor1, rightMotor2,rightMotor3);
 digital_out wings = digital_out(Brain.ThreeWirePort.H);
 
+encoder leftEncoder(Brain.ThreeWirePort.A);
+encoder rightEncoder(Brain.ThreeWirePort.C);
+encoder backEncoder(Brain.ThreeWirePort.E);
+
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
  *
