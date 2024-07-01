@@ -66,7 +66,7 @@ void leftDegrees(double x) {
   right_drive.spinFor(fwd, x, degrees);
 }
 
-void moveForwardPID(double targetDistance) {
+void moveForward(double targetDistance) {
   double kP = 0.6;
   double kI = 0.04;
   double kD = 0.3;
@@ -87,6 +87,36 @@ void moveForwardPID(double targetDistance) {
 
     left_drive.spin(fwd, motorPower, pct);
     right_drive.spin(fwd, motorPower, pct);
+
+    previousError = error;
+    wait(20, msec);
+  }
+
+  left_drive.stop();
+  right_drive.stop();
+}
+
+void moveBack(double targetDistance) {
+  double kP = 0.6;
+  double kI = 0.04;
+  double kD = 0.3;
+  double error = targetDistance;
+  double previousError = 0;
+  double integral = 0;
+  double derivative;
+  double motorPower;
+
+  left_drive.resetPosition();
+  right_drive.resetPosition();
+
+  while (fabs(error) > 0.1) {
+    error = targetDistance - left_drive.position(turns);
+    integral += error;
+    derivative = error - previousError;
+    motorPower = (kP * error) + (kI * integral) + (kD * derivative);
+
+    left_drive.spin(reverse, motorPower, pct);
+    right_drive.spin(reverse, motorPower, pct);
 
     previousError = error;
     wait(20, msec);
@@ -161,6 +191,7 @@ void setRightWing(bool state) {
 }
 
 void updateOdometry() {
+
   static double lastLeftEncoder = 0.0;
   static double lastRightEncoder = 0.0;
   static double lastBackEncoder = 0.0;
@@ -172,6 +203,22 @@ void updateOdometry() {
   double deltaLeft = currentLeftEncoder - lastLeftEncoder;
   double deltaRight = currentRightEncoder - lastRightEncoder;
   double deltaBack = currentBackEncoder - lastBackEncoder;
+
+  lastLeftEncoder = currentLeftEncoder;
+  lastRightEncoder = currentRightEncoder;
+  lastBackEncoder = currentBackEncoder;
+
+  double deltaLeftInches = (deltaLeft / tpr) * wheelDiameter * M_PI;
+  double deltaRightInches = (deltaRight / tpr) * wheelDiameter * M_PI;
+  double deltaBackInches = (deltaBack / tpr) * wheelDiameter * M_PI;
+
+  double deltaTheta = (deltaRightInches - deltaLeftInches) / wheelBaseWidth;
+  double deltaX = (deltaLeftInches + deltaRightInches) / 2.0;
+  double deltaY = deltaBackInches - (deltaTheta * backWheelOffset);
+
+  robotTheta += deltaTheta;
+  robotX += deltaX * cos(robotTheta) - deltaY * sin(robotTheta);
+  robotY += deltaX * sin(robotTheta) + deltaY * cos(robotTheta);
 
 }
 
@@ -186,7 +233,6 @@ void pre_auton(void) {
 }
 
 void autonomous(void) {
-
 
   leftDegrees(45);  
   wait(1, sec);
@@ -391,9 +437,17 @@ void autonomous(void) {
 
 void usercontrol(void) {
   while (true) {
+
     left_drive.spin(fwd, Controller1.Axis3.position(pct), pct);
     right_drive.spin(fwd, Controller1.Axis2.position(pct), pct);
     wait(20, msec);
+
+    updateOdometry();
+
+    Brain.Screen.print(robotX);
+    Brain.Screen.print(robotY);
+    Brain.Screen.print(robotTheta);
+    
   }
 }
 
