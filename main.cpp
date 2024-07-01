@@ -266,6 +266,114 @@ float to_deg(float angle_rad){
   return(angle_rad*(180.0/M_PI));
 }
 
+// void purePursuit(std::vector<std::pair<double, double>> path) {
+
+//   double lookaheadDistance = 5.0;
+//   double kP = 0.4;
+//   double kI = 0.025;
+//   double kD = 0.001;
+
+//   for (auto& point : path) {
+//     double targetX = point.first;
+//     double targetY = point.second;
+
+//     while (sqrt(pow(targetX - robotX, 2) + pow(targetY - robotY, 2)) > lookaheadDistance) {
+//       double angleToTarget = atan2(targetY - robotY, targetX - robotX);
+//       double distanceToTarget = sqrt(pow(targetX - robotX, 2) + pow(targetY - robotY, 2));
+//       double headingError = angleToTarget - robotTheta;
+//       double error = distanceToTarget;
+//       double previousError = 0;
+//       double integral = 0;
+//       double derivative;
+//       double motorPower;
+
+//       while (fabs(error) > 0.1) {
+//         error = distanceToTarget - sqrt(pow(targetX - robotX, 2) + pow(targetY - robotY, 2));
+//         integral += error;
+//         derivative = error - previousError;
+//         motorPower = (kP * error) + (kI * integral) + (kD * derivative);
+
+//         left_drive.spin(fwd, motorPower - headingError, pct);
+//         right_drive.spin(fwd, motorPower + headingError, pct);
+
+//         previousError = error;
+//         wait(20, msec);
+//         updateOdometry();
+//       }
+
+//     }
+
+//   left_drive.stop();
+//   right_drive.stop();
+//   }
+// }
+
+std::pair<double, double> findLookaheadPoint(const std::vector<std::pair<double, double>>& path, double lookaheadDistance) {
+
+  for (size_t i = 0; i < path.size() - 1; ++i) {
+    double x1 = path[i].first;
+    double y1 = path[i].second;
+    double x2 = path[i + 1].first;
+    double y2 = path[i + 1].second;
+
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+    double d = sqrt(dx * dx + dy * dy);
+    double D = (x1 - robotX) * dy - (y1 - robotY) * dx;
+    double discriminant = lookaheadDistance * lookaheadDistance * d * d - D * D;
+
+    if (discriminant >= 0) {
+      double sqrtDiscriminant = sqrt(discriminant);
+      double t1 = (D * dy + (dx < 0 ? -1 : 1) * dx * sqrtDiscriminant) / (d * d);
+      double t2 = (D * dy - (dx < 0 ? -1 : 1) * dx * sqrtDiscriminant) / (d * d);
+
+      if (t1 >= 0 && t1 <= 1) {
+        return {x1 + t1 * dx, y1 + t1 * dy};
+      }
+
+      if (t2 >= 0 && t2 <= 1) {
+        return {x1 + t2 * dx, y1 + t2 * dy};
+      }
+    }
+  }
+  
+  return path.back();
+
+}
+
+void purePursuit(const std::vector<std::pair<double, double>>& path, double lookaheadDistance = 5.0, double kP = 0.6, double kI = 0.04, double kD = 0.3) {
+  for (auto& point : path) {
+    double targetX = point.first;
+    double targetY = point.second;
+
+    while (sqrt(pow(targetX - robotX, 2) + pow(targetY - robotY, 2)) > lookaheadDistance) {
+      std::pair<double, double> lookaheadPoint = findLookaheadPoint(path, lookaheadDistance);
+
+      double angleToTarget = atan2(lookaheadPoint.second - robotY, lookaheadPoint.first - robotX);
+      double distanceToTarget = sqrt(pow(lookaheadPoint.first - robotX, 2) + pow(lookaheadPoint.second - robotY, 2));
+      double headingError = angleToTarget - robotTheta;
+
+      double error = distanceToTarget;
+      static double previousError = 0;
+      static double integral = 0;
+
+      integral += error;
+      double derivative = error - previousError;
+      double motorPower = (kP * error) + (kI * integral) + (kD * derivative);
+
+      left_drive.spin(fwd, motorPower + headingError, pct);
+      right_drive.spin(fwd, motorPower - headingError, pct);
+
+      previousError = error;
+      wait(20, msec);
+
+      updateOdometry();
+    }
+  }
+
+  left_drive.stop();
+  right_drive.stop();
+}
 
 void pre_auton(void) {
   vexcodeInit();
