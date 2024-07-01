@@ -266,6 +266,33 @@ float to_deg(float angle_rad){
   return(angle_rad*(180.0/M_PI));
 }
 
+void purePursuit(std::vector<std::pair<double, double>> path) {
+
+  double lookaheadDistance = 5.0;
+  double kP = 0.0;
+  double kI = 0.0;
+  double kD = 0.0;
+
+  for (auto& point : path) {
+
+    double targetX = point.first;
+    double targetY = point.second;
+
+    while (sqrt(pow(targetX - robotX, 2) + pow(targetY - robotY, 2)) > lookaheadDistance) {
+
+      double angleToTarget = atan2(targetY - robotY, targetX - robotX);
+      double distanceToTarget = sqrt(pow(targetX - robotX, 2) + pow(targetY - robotY, 2));
+      double headingError = angleToTarget - robotTheta;
+
+      left_drive.stop();
+      right_drive.stop();
+
+    }
+
+
+  }
+
+}
 
 void pre_auton(void) {
   vexcodeInit();
