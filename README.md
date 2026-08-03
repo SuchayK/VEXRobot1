@@ -1,7 +1,8 @@
 <h1 align="center">VEX V5 Competition Robot</h1>
 
 <p align="center">
-  Six-motor tank drive · three-wheel odometry · heading-corrected PID · pneumatics
+  Team 19697Z Pyronauts<br>
+  <sub>Six-motor tank drive · three-wheel odometry · heading-corrected PID · pneumatics</sub>
 </p>
 
 <p align="center">
@@ -12,10 +13,31 @@
 </p>
 
 <p align="center">
+  <img alt="4x VEX Worlds Qualifier" src="https://img.shields.io/badge/4%C3%97-VEX%20Worlds%20Qualifier-d6001c?style=flat-square">
+  <img alt="UIL Texas State 6A Champions" src="https://img.shields.io/badge/UIL%20Texas%20State-6A%20Champions-BF5700?style=flat-square">
+</p>
+
+<p align="center">
   <img src="media/cad-1.png" alt="Robot CAD render" width="420">
 </p>
 
 ---
+
+## Results
+
+Team **19697Z Pyronauts** — **4× VEX Robotics World Championship qualifier**.
+
+| Award | Event | |
+|---|---|---|
+| 🏆 **Excellence Award** | Region 3 State Championships | Feb 2025 |
+| 🏆 **UIL Texas State 6A Champions** | University Interscholastic League | Feb 2025 |
+| 🥈 **2nd Place Skills Champions** | Region 3 State Championships | Feb 2025 |
+| 🏆 **Build Award** | Region 3 State Championships | Feb 2024 |
+
+Across 2021–2025: **6× Excellence Award winner, 12× Tournament Champion/Finalist, 25× award
+winner.** The Excellence Award is the program's top honour and weighs autonomous performance and
+engineering documentation alongside match play — which is most of why this codebase is organised
+the way it is.
 
 ## Features
 
