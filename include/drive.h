@@ -2,7 +2,7 @@
 //
 // Every autonomous routine is written against this file. Two families:
 //
-//   Drive::forward / back / turnTo   closed loop, heading-corrected. Use these.
+//   Drive::forward / back / turnBy   closed loop, heading-corrected. Use these.
 //   Drive::forwardOpen / turnOpen    blocking spinFor calls, no feedback.
 //                                    Kept for quick tuning and sanity checks.
 //
@@ -33,8 +33,11 @@ namespace Drive {
   void forward(double turns);
   void back(double turns);
 
-  // Closed loop on the inertial sensor. Positive is clockwise.
-  void turnTo(double degrees);
+  // Closed loop on the inertial sensor. Pivots BY `degrees` relative to the
+  // current heading — the sensor's rotation is reset at the start of each call.
+  // Positive is clockwise. (This was named turnTo, which reads as turning to an
+  // absolute field heading; it never did that.)
+  void turnBy(double degrees);
 
   void liftTo(double turns);
 

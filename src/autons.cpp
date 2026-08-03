@@ -13,28 +13,28 @@ namespace Auton {
 
     // Deploy, score the preload, retreat to a legal position.
     void nearSide() {
-      Drive::turnTo(-45);
+      Drive::turnBy(-45);
       wings.set(true);
       wait(300, msec);
       Drive::forward(1.0);
       Drive::back(1.0);
       wings.set(false);
       wait(300, msec);
-      Drive::turnTo(135);
+      Drive::turnBy(135);
       Drive::forward(2.0);
       Drive::back(2.0);
     }
 
     void farSide() {
       Drive::forward(2.0);
-      Drive::turnTo(-90);
+      Drive::turnBy(-90);
       wings.set(true);
       wait(300, msec);
       Drive::forward(1.5);
       Drive::back(1.0);
       wings.set(false);
       wait(300, msec);
-      Drive::turnTo(90);
+      Drive::turnBy(90);
       Drive::forward(1.0);
     }
 
@@ -46,7 +46,7 @@ namespace Auton {
         Drive::forward(2.5);
         wings.set(false);
         Drive::back(2.0);
-        Drive::turnTo(90);
+        Drive::turnBy(90);
       }
       Drive::liftTo(1.5);
     }

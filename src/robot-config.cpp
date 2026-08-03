@@ -21,11 +21,16 @@ motor_group right_drive = motor_group(rightMotor1, rightMotor2, rightMotor3);
 
 motor lift = motor(PORT7, ratio18_1, true);
 
-// Pneumatics. main.cpp used to re-declare wings on three-wire port A while this
-// file put it on H, so the two definitions disagreed about which solenoid fired.
-digital_out wings      = digital_out(Brain.ThreeWirePort.H);
-digital_out left_wing  = digital_out(Brain.ThreeWirePort.B);
-digital_out right_wing = digital_out(Brain.ThreeWirePort.D);
+// Pneumatics. Both wing pistons are plumbed to ONE solenoid through a tee, so
+// one digital_out fires them together — which is also the only way the port
+// math closes: the three quadrature encoders below each consume a PAIR of
+// adjacent three-wire ports (A+B, C+D, E+F), leaving just G and H. The old
+// per-side left_wing/right_wing declarations sat on B and D, inside the
+// encoder pairs, and nothing ever actuated them; they're gone.
+//
+// (main.cpp also used to re-declare wings on three-wire port A while this file
+// put it on H, so the two definitions disagreed about which solenoid fired.)
+digital_out wings = digital_out(Brain.ThreeWirePort.H);
 
 encoder leftEncoder  = encoder(Brain.ThreeWirePort.A);
 encoder rightEncoder = encoder(Brain.ThreeWirePort.C);

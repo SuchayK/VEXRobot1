@@ -24,10 +24,8 @@ extern motor_group right_drive;
 // Lift — 18:1 (200 rpm) cartridge for torque.
 extern motor lift;
 
-// Pneumatics.
+// Pneumatics — both wing pistons on one solenoid via a tee (three-wire H).
 extern digital_out wings;
-extern digital_out left_wing;
-extern digital_out right_wing;
 
 // Odometry: two parallel tracking wheels plus one perpendicular rear wheel.
 extern encoder leftEncoder;

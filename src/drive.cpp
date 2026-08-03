@@ -84,7 +84,7 @@ namespace Drive {
   void forward(double turnsTarget) { straight(turnsTarget, +1); }
   void back(double turnsTarget)    { straight(turnsTarget, -1); }
 
-  void turnTo(double targetDegrees) {
+  void turnBy(double targetDegrees) {
     imu.resetRotation();
 
     double error = targetDegrees;

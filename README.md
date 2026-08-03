@@ -49,8 +49,8 @@ by the end of it. Almost everything in this repo exists to keep the robot where 
 |---|---|
 | Drivetrain | 6× V5 motors, `ratio6_1` (600 rpm) — 3 per side |
 | Lift | 1× V5 motor, `ratio18_1` (200 rpm) for torque |
-| Pneumatics | Wings on 3-wire digital out |
-| Tracking | 3× quadrature encoders — left, right, rear |
+| Pneumatics | Both wing pistons on one solenoid via a tee (3-wire H) |
+| Tracking | 3× quadrature encoders — left, right, rear (pairs A+B, C+D, E+F) |
 | Heading | V5 inertial sensor (PORT6) |
 | Wheels | 3.0 in diameter, 360 ticks/rev |
 

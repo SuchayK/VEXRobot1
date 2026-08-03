@@ -7,8 +7,8 @@
 
 namespace Odom {
 
-  // PI is a POSIX extension, not standard C++ — it happens to exist in the
-  // VEX toolchain's math.h but isn't guaranteed anywhere else.
+  // M_PI is a POSIX extension, not standard C++ â€” it happens to exist in the
+  // VEX toolchain's math.h but isn't guaranteed anywhere else, so define our own.
   constexpr double PI = 3.14159265358979323846;
 
   const double WHEEL_DIAMETER   = 3.0;
