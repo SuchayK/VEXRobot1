@@ -1,64 +1,146 @@
-# VEX V5 Competition Robot — Drive, Odometry & Autonomous
+<h1 align="center">VEX V5 Competition Robot</h1>
 
-Competition code for a VEX V5 robot: six-motor tank drive, pneumatic wings, a lift, and
-position tracking off three dedicated encoders plus an inertial sensor. Written for the
-VEXcode V5 `competition` template, so the same codebase serves both the autonomous period
-and driver control.
+<p align="center">
+  Six-motor tank drive · three-wheel odometry · heading-corrected PID · pneumatics
+</p>
 
-The reason this isn't just `spinFor` calls: VEX fields are slippery and matches are 15
-seconds of autonomous where a few degrees of heading drift compounds into a missed scoring
-element. Most of the code here exists to make the robot end up where it thinks it is.
+<p align="center">
+  <img alt="Platform" src="https://img.shields.io/badge/platform-VEX%20V5-d6001c?style=flat-square">
+  <img alt="VEXcode" src="https://img.shields.io/badge/VEXcode-V5%20Pro-000000?style=flat-square">
+  <img alt="C++" src="https://img.shields.io/badge/C%2B%2B17-00599C?style=flat-square&logo=cplusplus&logoColor=white">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=flat-square">
+</p>
+
+<p align="center">
+  <img src="media/cad-1.png" alt="Robot CAD render" width="420">
+</p>
+
+---
+
+## Features
+
+- **Three-wheel odometry** — absolute field position from two parallel tracking wheels plus a
+  perpendicular rear wheel, so sideways displacement is tracked, not guessed
+- **Heading-corrected straight driving** — a proportional inertial term split differentially
+  across the drivetrain, so a straight command corrects its own drift mid-move
+- **PID motion primitives** — distance, turn and lift loops with clamped integral and timeouts
+- **Open-loop primitives** — direct `spinFor` equivalents kept for quick tuning
+- **Brain-screen auton selector** — tap to cycle routines, no re-download between matches
+- **Tank driver control** — stick deadband, edge-triggered pneumatics, live pose readout
+- **Host type-check** — `tools/syntax-check.sh` compiles every file against stubbed SDK headers
+
+## Why the code is shaped like this
+
+Matches are fifteen seconds of autonomous on a field that is, mechanically, quite slippery. A
+couple of degrees of heading error at the start of a move compounds into a missed scoring element
+by the end of it. Almost everything in this repo exists to keep the robot where it thinks it is:
+
+- Turns close on the **inertial sensor**, not on wheel encoders, because slip during a pivot is
+  invisible to an encoder — the wheel turns and the robot doesn't.
+- Straight moves carry a **heading cross-term**: `left = power + Kc·err`, `right = power − Kc·err`
+  with `Kc = 0.5`. Applied differentially, it steers without changing forward speed, so the robot
+  fights drift as it happens instead of arriving crooked.
+- The **rear tracking wheel** is what makes the odometry more than dead reckoning. When a
+  defensive robot shoves you sideways, a two-encoder model reports that nothing happened.
 
 ## Hardware
 
 | Subsystem | Configuration |
 |---|---|
-| Drivetrain | 6× motors on `ratio6_1` — 3 per side, grouped as `left_drive` / `right_drive` |
-| Lift | 1× motor on `ratio18_1` (torque gearing) |
-| Pneumatics | `wings` via 3-wire digital out |
-| Odometry | 3× quadrature encoders — left, right, and a rear encoder for lateral drift |
-| Heading | V5 inertial sensor |
-| Wheels | 3.0" diameter, 360 ticks/rev |
+| Drivetrain | 6× V5 motors, `ratio6_1` (600 rpm) — 3 per side |
+| Lift | 1× V5 motor, `ratio18_1` (200 rpm) for torque |
+| Pneumatics | Wings on 3-wire digital out |
+| Tracking | 3× quadrature encoders — left, right, rear |
+| Heading | V5 inertial sensor (PORT6) |
+| Wheels | 3.0 in diameter, 360 ticks/rev |
 
-## How it works
+Ports live in [`src/robot-config.cpp`](src/robot-config.cpp) and nowhere else.
 
-**Motion with heading correction.** `moveForward` / `moveBack` run a PID loop
-(`kP 0.6, kI 0.04, kD 0.3`) on encoder distance, but the drive output is split by a
-proportional heading term: `left = power + Kc * angleError`, `right = power - Kc * angleError`,
-with `Kc = 0.5` and `angleError` measured against the inertial reading captured at the start
-of the move. A straight-line command therefore actively corrects its own drift instead of
-accumulating it — one side gets throttled the moment the robot starts to veer. The loop
-ticks every 20 ms and exits inside 0.1 turns of target.
+<p align="center">
+  <img src="media/build-360-1.png" alt="Robot, 360 view" width="260">
+  <img src="media/build-360-4.png" alt="Robot, 360 view" width="260">
+  <img src="media/cad-2.png" alt="CAD render" width="260">
+</p>
 
-**Three-wheel odometry.** `updateOdometry()` maintains a global pose (`robotX`, `robotY`,
-`robotTheta`), updated after every movement primitive. The rear encoder is what makes this
-more than differential-drive dead reckoning — it captures sideways displacement from
-defensive contact, which a two-encoder model silently misses.
+## Tuning
 
-**Two movement APIs.** Both a simple blocking form (`turnLeft`, `rightDegrees` — direct
-`spinFor` calls, useful for quick tuning) and the PID form. Overloads taking a trailing
-`bool` control whether the call blocks, which is how two subsystems get driven at once.
+| Loop | kP | kI | kD |
+|---|---|---|---|
+| Distance (wheel turns) | 0.6 | 0.04 | 0.3 |
+| Turn (degrees) | 0.3 | 0.02 | 0.005 |
+| Lift (turns) | 0.6 | 0.04 | 0.3 |
+
+Heading cross-gain `Kc = 0.5`. Loops tick every 20 ms, clamp the integral to ±50, and time out
+after 4 s so a stalled mechanism ends the move rather than the match.
+
+Odometry geometry — track width and rear-wheel offset — is at the top of
+[`src/odometry.cpp`](src/odometry.cpp). **Measure these on your own robot;** the pose is only as
+good as they are.
 
 ## Layout
 
-| File | Role |
+```
+src/
+├── main.cpp          competition entry, driver control
+├── robot-config.cpp  every device and port
+├── drive.cpp         PID motion primitives
+├── odometry.cpp      three-wheel position tracking
+└── autons.cpp        routines + brain-screen selector
+include/              matching headers
+tools/
+├── syntax-check.sh   host type-check
+└── stubs/            minimal V5 SDK stand-ins
+media/                CAD renders and build photos
+```
+
+## Building
+
+Open the folder in **VEXcode V5 Pro** (or VS Code with the VEX extension), match the ports in
+`src/robot-config.cpp` to your build, then download to the brain.
+
+The robot must sit **still** at startup — `vexcodeInit()` blocks while the inertial sensor
+calibrates, and every heading correction afterwards is relative to that reading.
+
+### Type-checking without the SDK
+
+```bash
+bash tools/syntax-check.sh
+```
+
+Compiles all five translation units on a host `g++` against the stubs in `tools/stubs/`. It
+catches redefinitions, missing declarations and type errors; it does **not** check runtime
+behaviour. The real SDK headers ship with VEXcode and can't be redistributed, which is why the
+stubs exist.
+
+## Autonomous routines
+
+Defined in [`src/autons.cpp`](src/autons.cpp), selected by tapping the brain screen:
+
+| Routine | Description |
 |---|---|
-| `main.cpp` | Movement primitives, PID, odometry, autonomous + driver control |
-| `robot-config.cpp` / `.h` | Device constructors, ports, motor groups |
-| `vex.h` | VEXcode includes |
-| `*.png` | CAD renders and 360° views of the build |
+| `NEAR_SIDE` | Deploy, score the preload, retreat to a legal position |
+| `FAR_SIDE` | Cross, deploy wings, score, reposition |
+| `SKILLS` | 60 s run — three scoring cycles, then lift |
 
-## Status
+Distances are in wheel turns and headings in degrees, and both get re-tuned per field. That's
+the whole reason they live in one file instead of scattered through `main.cpp`.
 
-The movement, PID, odometry, and driver-control code are complete and were run on the robot.
-The `autonomous()` routine currently holds a **commented-out route** — a sequence of
-`moveForward` / `leftDegrees` / `wings.set()` calls kept as a scratchpad, since the route was
-re-tuned per field setup and per match. Uncomment and adjust the distances for a given field
-before competing; the primitives it calls are working.
+## History
 
-## Running it
+Restructured in August 2026. The original was a single 613-line `main.cpp` alongside a
+`robot-config` pair, and it did not compile: `moveForward(double)` was defined twice in the same
+translation unit, `lift` and `wings` were defined in both files and disagreed about which
+three-wire port the solenoid was on, `updateOdometry()` was called seventeen times before it was
+declared, `wheelBaseWidth` and `backWheelOffset` were used but never declared, `wings.left_wing.set()`
+addressed a member that doesn't exist on `digital_out`, several `wait(1, sec)` calls were missing
+semicolons, and `robot-config.h` both dropped a semicolon and never declared the inertial sensor.
 
-Open in **VEXcode V5** (or VS Code with the VEX extension), match the ports in
-`robot-config.cpp` to your build, then build and download to the V5 brain. Calibrate the
-inertial sensor on a still robot at startup — heading correction is only as good as that
-initial reading.
+The odometry also wrapped its heading delta as though it were degrees while computing it in
+radians — a branch that could never fire, and would have corrupted the pose if it had.
+
+Control gains and the odometry approach are carried over unchanged. The structure around them
+is new. The original is in the git history.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
